@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-tw">
+
+<head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Microsoft jhenghei';
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="d-flex justify-content-start mt-3">
+            <ul class="m-0" style="list-style:decimal;">
+                csv format 檔案內容格式
+                <li>tableName 表格名稱</li>
+                <li>columnName 欄位名稱</li>
+                <li>type 欄位型別</li>
+                <li>isNull(not null/null) 可否為空值</li>
+                <li>default(empty/value/sql function) 預設值 若無預設值欄位留空</li>
+                <li>column descript 欄位描述</li>
+            </ul>
+            <ul class="m-0" style="list-style:decimal;">
+                注意事項
+                <li>上傳的檔案不能包含表頭</li>
+                <li>內含中文應使用記事本開啟後另存新檔編碼改為UTF8</li>
+                <li>欄位描述使用sp寫入</li>
+            </ul>
+        </div>
+        <hr>
+        <form action="" onsubmit="">
+            <div class="d-flex justify-content-start align-items-end">
+                <div class="d-flex flex-column">
+                    <label for="uploadCsv" class="mr-1"></label>
+                    <input type="file" id="uploadCsv" class="form-control-file" style="width: 210px;">
+                </div>
+                <button type="button" onclick="readSingleFile()" class="btn btn-secondary py-0"
+                    style="height: 30px;">上傳</button>
+                <button type="button" onclick="copyDivToClipboard()" class="btn btn-dark py-0 ml-3"
+                    style="height: 30px;">複製</button>
+                <button type="button" onclick="clearOutput()" class="btn btn-dark py-0 ml-3"
+                    style="height: 30px;">清空</button>
+            </div>
+        </form>
+        <hr>
+        <div id="output">
+
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script>
+        //上傳
+        function readSingleFile() {
+            var csv = document.getElementById("uploadCsv").files[0];
+            console.log(csv)
+            if (!csv) {
+                console.log("return")
+                return
+            }
+
+            var fileReader = new FileReader();
+            fileReader.onload = function (e) {
+                var contents = e.target.result.toString().split('\r\n');
+                console.log(contents)
+                if (contents && contents.length > 0) {
+                    contents.forEach(row => {
+                        let ceils = row.split(','); //${ceils[]} 0 tableName  1 columnName  2 type  3 isNull  4 default  5 descript
+                        if (ceils && ceils[0] && ceils[0] != "") {
+                            let str = `<span>alter table [dbo].[${ceils[0]}] add [${ceils[1]}] ${ceils[2]} ${ceils[3]}`;
+                            if (ceils[4] != undefined && ceils[4] != "") {
+                                str += ` default ${ceils[4]}`;
+                            }
+                            str += `;go;</span><br/>
+                                <span>exec sp_SetColDesc '${ceils[0]}','${ceils[1]}',N'${ceils[5]}';go;</span><br/>`;
+                            document.getElementById('output').insertAdjacentHTML('beforeend', str)
+                        }
+                    })
+                }
+            }
+            fileReader.readAsText(csv)
+        }
+
+        //複製
+        function copyDivToClipboard() {
+            var range = document.createRange();
+            range.selectNode(document.getElementById("output"));
+            window.getSelection().removeAllRanges(); // clear current selection
+            window.getSelection().addRange(range); // to select text
+            document.execCommand("copy");
+            window.getSelection().removeAllRanges();// to deselect
+        }
+
+        //清空
+        function clearOutput() {
+            document.getElementById("output").innerHTML = "";
+        }
+    </script>
+</body>
+
+</html>
