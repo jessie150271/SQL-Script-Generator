@@ -27,13 +27,14 @@
                 <li>type 欄位型別</li>
                 <li>isNull(not null/null) 可否為空值</li>
                 <li>default(empty/value/sql function) 預設值 若無預設值欄位留空</li>
-                <li>column description 欄位描述</li>
+                <li>columnDescription(empty/string) 欄位描述 若無描述欄位留空</li>
             </ul>
             <ul class="m-0" style="list-style:decimal;">
                 注意事項
                 <li>上傳的檔案不能包含表頭</li>
                 <li>內含中文應使用記事本開啟後另存新檔編碼改為UTF8</li>
                 <li>欄位描述使用sp寫入</li>
+                <li>欄位描述sp待補</li>
             </ul>
         </div>
         <hr>
@@ -89,8 +90,10 @@
                             if (ceils[4] != undefined && ceils[4] != "") {
                                 str += ` default ${ceils[4]}`;
                             }
-                            str += `;</span><br/>go<br/>
-                                <span>exec sp_SetColDesc '${ceils[0]}','${ceils[1]}',N'${ceils[5]}';</span><br/>go<br/>`;
+                            str += `;</span><br/>go<br/>`;
+                            if (ceils[5] != undefined && ceils[5] != "") {
+                                str += `<span>exec sp_SetColDesc '${ceils[0]}','${ceils[1]}',N'${ceils[5]}';</span><br/>go<br/>`;
+                            }
                             document.getElementById('output').insertAdjacentHTML('beforeend', str)
                         }
                     })
