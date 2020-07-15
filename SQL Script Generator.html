@@ -89,8 +89,8 @@
                             if (ceils[4] != undefined && ceils[4] != "") {
                                 str += ` default ${ceils[4]}`;
                             }
-                            str += `;go;</span><br/>
-                                <span>exec sp_SetColDesc '${ceils[0]}','${ceils[1]}',N'${ceils[5]}';go;</span><br/>`;
+                            str += `;</span><br/>go<br/>
+                                <span>exec sp_SetColDesc '${ceils[0]}','${ceils[1]}',N'${ceils[5]}';</span><br/>go<br/>`;
                             document.getElementById('output').insertAdjacentHTML('beforeend', str)
                         }
                     })
